@@ -87,10 +87,6 @@ pub fn get_plugin_version() -> Version {
     }
 }
 
-fn offset_to_addr(offset: usize) -> *const () {
-    unsafe { (getRegionAddress(Region::Text) as *const u8).add(offset) as _ }
-}
-
 pub struct Version {
     pub major: u8,
     pub minor: u8,
