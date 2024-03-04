@@ -12,11 +12,11 @@ mod externed {
         pub fn allow_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn disable_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn is_online() -> bool;
-        pub fn csk_collection_version() -> u16;
     }
     extern "Rust" {
         pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntry);
         pub fn add_chara_layout_db_entry_info(chara_db_entry_info: crate::CharacterLayoutDatabaseEntry);
+        pub fn csk_collection_version() -> crate::Version;
     }
 }
 
@@ -78,19 +78,16 @@ pub fn is_online() -> bool {
 
 pub fn get_plugin_version() -> Version {
     unsafe {
-        let res = externed::csk_collection_version();
-        Version {
-            major: (res >> 16) as _,
-            minor: (res >> 8 & 0xFF) as _,
-            patch: (res & 0xFF) as _,
-        }
+        externed::csk_collection_version()
     }
 }
 
+#[repr(C)]
+#[derive(Debug)]
 pub struct Version {
-    pub major: u8,
-    pub minor: u8,
-    pub patch: u8,
+    pub major: u32,
+    pub minor: u32,
+    pub patch: u32,
 }
 
 macro_rules! create_enum {
@@ -270,3 +267,12 @@ pub struct CharacterLayoutDatabaseEntry {
     pub chara_0_offset_y: FloatType,
     pub chara_0_scale: FloatType,
 }
+
+// #[derive(Debug, Copy, Clone)]
+// pub struct NarrationCharacallEntry {
+//     pub nus3bank_path: u64,
+//     pub tonelabel_path: u64,
+//     pub nus3audio_path: u64,
+//     pub unk_1: u64,
+//     pub unk_2: u64,
+// }
