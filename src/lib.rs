@@ -14,8 +14,8 @@ mod externed {
         pub fn is_online() -> bool;
     }
     extern "Rust" {
-        pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry);
-        pub fn add_chara_layout_db_entry_info(chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry);
+        pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntry);
+        pub fn add_chara_layout_db_entry_info(chara_db_entry_info: crate::CharacterLayoutDatabaseEntry);
         pub fn csk_collection_version() -> crate::Version;
     }
 }
@@ -60,13 +60,13 @@ pub fn disable_ui_chara_hash_online(ui_chara_hash: u64) {
     }
 }
 
-pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry) {
+pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntry) {
     unsafe {
         externed::add_chara_db_entry_info(chara_db_entry_info);
     }
 }
 
-pub fn add_chara_layout_db_entry_info(chara_layout_db_entry_info: &crate::CharacterLayoutDatabaseEntry) {
+pub fn add_chara_layout_db_entry_info(chara_layout_db_entry_info: crate::CharacterLayoutDatabaseEntry) {
     unsafe {
         externed::add_chara_layout_db_entry_info(chara_layout_db_entry_info);
     }
