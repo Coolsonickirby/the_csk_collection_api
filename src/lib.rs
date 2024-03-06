@@ -26,9 +26,9 @@ pub fn play_bgm(ui_bgm_hash: u64) {
     }
 }
 
-pub fn get_color_from_entry_id(entry_id: u32) {
+pub fn get_color_from_entry_id(entry_id: u32) -> u32 {
     unsafe {
-        externed::get_color_from_entry_id(entry_id);
+        externed::get_color_from_entry_id(entry_id)
     }
 }
 
