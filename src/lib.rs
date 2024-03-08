@@ -1,6 +1,6 @@
 #![allow(arithmetic_overflow)]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, ffi::CString};
 
 mod externed {
     extern "C" {
@@ -12,11 +12,9 @@ mod externed {
         pub fn allow_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn disable_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn is_online() -> bool;
-    }
-    extern "Rust" {
-        pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntry);
-        pub fn add_chara_layout_db_entry_info(chara_db_entry_info: crate::CharacterLayoutDatabaseEntry);
-        pub fn csk_collection_version() -> crate::Version;
+        pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry);
+        pub fn add_chara_layout_db_entry_info(chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry);
+        pub fn csk_collection_version() -> *const crate::Version;
     }
 }
 
@@ -62,13 +60,13 @@ pub fn disable_ui_chara_hash_online(ui_chara_hash: u64) {
 
 pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntry) {
     unsafe {
-        externed::add_chara_db_entry_info(chara_db_entry_info);
+        externed::add_chara_db_entry_info(&chara_db_entry_info);
     }
 }
 
 pub fn add_chara_layout_db_entry_info(chara_layout_db_entry_info: crate::CharacterLayoutDatabaseEntry) {
     unsafe {
-        externed::add_chara_layout_db_entry_info(chara_layout_db_entry_info);
+        externed::add_chara_layout_db_entry_info(&chara_layout_db_entry_info);
     }
 }
 
@@ -78,16 +76,57 @@ pub fn is_online() -> bool {
 
 pub fn get_plugin_version() -> Version {
     unsafe {
-        externed::csk_collection_version()
+        *externed::csk_collection_version()
     }
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Version {
     pub major: u32,
     pub minor: u32,
     pub patch: u32,
+}
+
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct CStrCSK {
+    pub ptr: *mut u8,
+}
+
+impl CStrCSK {
+
+    pub fn new(s: &str) -> Self {
+        let entry = CStrCSK {
+            ptr: std::ptr::null_mut()
+        };
+        entry.set(s)
+    }
+
+    pub fn set(mut self, s: &str) -> Self {
+        unsafe {
+            if !self.ptr.is_null() {
+                drop(CString::from_raw(self.ptr as _));
+            }
+            self.ptr = CString::new(s).unwrap().into_raw() as _;
+            self
+        }
+    }
+
+    // Consumes itself after getting the string
+    pub fn get(self) -> Option<String> {
+        unsafe {
+            if self.ptr.is_null() {
+                return None;
+            }
+            let from_raw = CString::from_raw(self.ptr as _);
+            match from_raw.to_str() {
+                Ok(res) => Some(res.to_string()),
+                Err(_) => None,
+            }
+        }
+    }
+
 }
 
 macro_rules! create_enum {
@@ -107,7 +146,7 @@ macro_rules! create_enum {
     };
 }
 
-create_enum!(StringType: String);
+create_enum!(StringType: CStrCSK);
 create_enum!(Hash40Type: u64);
 create_enum!(ShortType: i16);
 create_enum!(IntType: i32);
