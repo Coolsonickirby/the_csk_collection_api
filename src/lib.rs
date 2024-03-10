@@ -14,6 +14,7 @@ mod externed {
         pub fn is_online() -> bool;
         pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry);
         pub fn add_chara_layout_db_entry_info(chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry);
+        pub fn add_series_db_entry_info(series_db_entry_info: &crate::SeriesDatabaseEntry);
         pub fn csk_collection_version() -> *const crate::Version;
     }
 }
@@ -67,6 +68,12 @@ pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntr
 pub fn add_chara_layout_db_entry_info(chara_layout_db_entry_info: crate::CharacterLayoutDatabaseEntry) {
     unsafe {
         externed::add_chara_layout_db_entry_info(&chara_layout_db_entry_info);
+    }
+}
+
+pub fn add_series_db_entry_info(series_db_entry_info: crate::SeriesDatabaseEntry) {
+    unsafe {
+        externed::add_series_db_entry_info(&series_db_entry_info);
     }
 }
 
@@ -307,11 +314,28 @@ pub struct CharacterLayoutDatabaseEntry {
     pub chara_0_scale: FloatType,
 }
 
-// #[derive(Debug, Copy, Clone)]
-// pub struct NarrationCharacallEntry {
-//     pub nus3bank_path: u64,
-//     pub tonelabel_path: u64,
-//     pub nus3audio_path: u64,
-//     pub unk_1: u64,
-//     pub unk_2: u64,
-// }
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct SeriesDatabaseEntry {
+    pub ui_series_id: u64,
+    pub clone_from_ui_series_id: Option<u64>,
+    pub name_id: StringType,
+    pub disp_order: SignedByteType,
+    pub disp_order_sound: SignedByteType,
+    pub save_no: SignedByteType,
+    pub shown_as_series_in_directory: BoolType,
+    pub is_dlc: BoolType,
+    pub is_patch: BoolType,
+    pub dlc_chara_id: Hash40Type,
+    pub is_use_amiibo_bg: BoolType,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct NarrationCharacallEntry {
+    pub unk_1: u64,
+    pub nus3bank_path: u64,
+    pub tonelabel_path: u64,
+    pub nus3audio_path: u64,
+    pub unk_2: u64,
+}
