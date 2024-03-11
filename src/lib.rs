@@ -12,10 +12,12 @@ mod externed {
         pub fn allow_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn disable_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn is_online() -> bool;
+        pub fn csk_collection_version() -> *const crate::Version;
+    }
+    extern "Rust" {
         pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry);
         pub fn add_chara_layout_db_entry_info(chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry);
         pub fn add_series_db_entry_info(series_db_entry_info: &crate::SeriesDatabaseEntry);
-        pub fn csk_collection_version() -> *const crate::Version;
     }
 }
 
@@ -330,6 +332,7 @@ pub struct SeriesDatabaseEntry {
     pub is_use_amiibo_bg: BoolType,
 }
 
+// THIS IS STILL A WORK IN PROGRESS
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct NarrationCharacallEntry {
