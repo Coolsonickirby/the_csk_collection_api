@@ -13,6 +13,7 @@ mod externed {
         pub fn disable_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn is_online() -> bool;
         pub fn csk_collection_version() -> *const crate::Version;
+        pub fn add_narration_characall_entry(string_ptr: *mut u8) -> bool;
     }
     extern "Rust" {
         pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry);
@@ -76,6 +77,13 @@ pub fn add_chara_layout_db_entry_info(chara_layout_db_entry_info: crate::Charact
 pub fn add_series_db_entry_info(series_db_entry_info: crate::SeriesDatabaseEntry) {
     unsafe {
         externed::add_series_db_entry_info(&series_db_entry_info);
+    }
+}
+
+pub fn add_narration_characall_entry(entry: &str) -> bool {
+    unsafe {
+        let ptr = std::ffi::CString::new(entry).expect(&format!("Failed converting {} to CString!", entry)).into_raw();
+        externed::add_narration_characall_entry(ptr as _)
     }
 }
 
@@ -330,15 +338,4 @@ pub struct SeriesDatabaseEntry {
     pub is_patch: BoolType,
     pub dlc_chara_id: Hash40Type,
     pub is_use_amiibo_bg: BoolType,
-}
-
-// THIS IS STILL A WORK IN PROGRESS
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct NarrationCharacallEntry {
-    pub unk_1: u64,
-    pub nus3bank_path: u64,
-    pub tonelabel_path: u64,
-    pub nus3audio_path: u64,
-    pub unk_2: u64,
 }
