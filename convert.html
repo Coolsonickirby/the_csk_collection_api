@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert</title>
+</head>
+
+<body>
+
+    <textarea oninput="updateOutput(this);" cols="100" rows="10"></textarea>
+    <hr />
+    <textarea id="output" cols="100" rows="50"></textarea>
+    <script>
+        var known_keys = [
+            "ui_chara_id",
+            "name_id",
+            "fighter_kind",
+            "fighter_kind_corps",
+            "ui_series_id",
+            "fighter_type",
+            "alt_chara_id",
+            "exhibit_year",
+            "exhibit_day_order",
+            "ext_skill_page_num",
+            "is_img_ext_skill_page0",
+            "is_img_ext_skill_page1",
+            "is_img_ext_skill_page2",
+            "skill_list_order",
+            "disp_order",
+            "save_no",
+            "chara_count",
+            "can_select",
+            "is_usable_soundtest",
+            "is_called_pokemon",
+            "is_mii",
+            "is_boss",
+            "is_hidden_boss",
+            "is_dlc",
+            "is_patch",
+            "is_plural_message",
+            "is_plural_narration",
+            "is_article",
+            "extra_flags",
+            "unk_0x112b7bb52a",
+            "result_pf0",
+            "result_pf1",
+            "result_pf2",
+            "color_num",
+            "extra_index_maps",
+            "extra_hash_maps",
+            "shop_item_tag",
+            "ui_layout_id",
+            "chara_color",
+            "eye_0_flash_count",
+            "eye_0_flash0_pos_x",
+            "eye_0_flash0_pos_y",
+            "eye_0_flash1_pos_x",
+            "eye_0_flash1_pos_y",
+            "eye_0_flash2_pos_x",
+            "eye_0_flash2_pos_y",
+            "eye_0_flash3_pos_x",
+            "eye_0_flash3_pos_y",
+            "eye_0_flash4_pos_x",
+            "eye_0_flash4_pos_y",
+            "eye_1_flash_count",
+            "eye_1_flash0_pos_x",
+            "eye_1_flash0_pos_y",
+            "eye_1_flash1_pos_x",
+            "eye_1_flash1_pos_y",
+            "eye_1_flash2_pos_x",
+            "eye_1_flash2_pos_y",
+            "eye_1_flash3_pos_x",
+            "eye_1_flash3_pos_y",
+            "eye_1_flash4_pos_x",
+            "eye_1_flash4_pos_y",
+            "eye_2_flash_count",
+            "eye_2_flash0_pos_x",
+            "eye_2_flash0_pos_y",
+            "eye_2_flash1_pos_x",
+            "eye_2_flash1_pos_y",
+            "eye_2_flash2_pos_x",
+            "eye_2_flash2_pos_y",
+            "eye_2_flash3_pos_x",
+            "eye_2_flash3_pos_y",
+            "eye_2_flash4_pos_x",
+            "eye_2_flash4_pos_y",
+            "eye_flash_info_pos_x",
+            "eye_flash_info_pos_y",
+            "spirits_eye_visible",
+            "chara_1_offset_x",
+            "chara_1_offset_y",
+            "chara_1_scale",
+            "chara_1_1_offset_x",
+            "chara_1_1_offset_y",
+            "chara_1_1_scale",
+            "chara_1_2_offset_x",
+            "chara_1_2_offset_y",
+            "chara_1_2_scale",
+            "chara_1_3_offset_x",
+            "chara_1_3_offset_y",
+            "chara_1_3_scale",
+            "chara_1_4_offset_x",
+            "chara_1_4_offset_y",
+            "chara_1_4_scale",
+            "chara_1_5_offset_x",
+            "chara_1_5_offset_y",
+            "chara_1_5_scale",
+            "chara_3_0_offset_x",
+            "chara_3_0_offset_y",
+            "chara_3_0_scale",
+            "chara_3_1_offset_x",
+            "chara_3_1_offset_y",
+            "chara_3_1_scale",
+            "chara_3_2_offset_x",
+            "chara_3_2_offset_y",
+            "chara_3_2_scale",
+            "chara_3_3_offset_x",
+            "chara_3_3_offset_y",
+            "chara_3_3_scale",
+            "chara_3_4_offset_x",
+            "chara_3_4_offset_y",
+            "chara_3_4_scale",
+            "chara_3_5_offset_x",
+            "chara_3_5_offset_y",
+            "chara_3_5_scale",
+            "chara_3_6_offset_x",
+            "chara_3_6_offset_y",
+            "chara_3_6_scale",
+            "chara_3_7_offset_x",
+            "chara_3_7_offset_y",
+            "chara_3_7_scale",
+            "chara_5_offset_x",
+            "chara_5_offset_y",
+            "chara_5_scale",
+            "chara_select_icon_list_offset_x",
+            "chara_select_icon_list_offset_y",
+            "chara_select_icon_list_scale",
+            "chara_7_0_offset_x",
+            "chara_7_0_offset_y",
+            "chara_7_0_scale",
+            "chara_7_1_offset_x",
+            "chara_7_1_offset_y",
+            "chara_7_1_scale",
+            "chara_0_offset_x",
+            "chara_0_offset_y",
+            "chara_0_scale",
+            "name_id",
+            "disp_order_sound",
+            "shown_as_series_in_directory",
+            "dlc_chara_id",
+            "is_use_amiibo_bg",
+        ];
+
+        var hash_to_key = {};
+
+
+        var crate_prefix = "the_csk_collection_api";
+
+        var type_dictionary = {
+            "hash40": `${crate_prefix}::Hash40Type::<METHOD>(<VALUE>)`,
+            "string": `${crate_prefix}::StringType::<METHOD>(${crate_prefix}::CStrCSK::new(<VALUE>))`,
+            "short": `${crate_prefix}::ShortType::<METHOD>(<VALUE>)`,
+            "int": `${crate_prefix}::IntType::<METHOD>(<VALUE>)`,
+            "float": `${crate_prefix}::FloatType::<METHOD>(<VALUE>)`,
+            "sbyte": `${crate_prefix}::SignedByteType::<METHOD>(<VALUE>)`,
+            "bool": `${crate_prefix}::BoolType::<METHOD>(<VALUE>)`,
+            "byte": `${crate_prefix}::UnsignedByteType::<METHOD>(<VALUE>)`,
+            "hashmap_hash": `${crate_prefix}::Hash40Map::<METHOD>(<VALUE>)`,
+            "hashmap_unsigned_byte": `${crate_prefix}::UnsignedByteMap::<METHOD>(<VALUE>)`,
+        }
+
+        var optional_keys = [
+            "disp_order",
+            "disp_order_sound"
+        ]
+
+        // yoinked both functions from here: https://stackoverflow.com/questions/18638900/javascript-crc32
+        // yoinked both functions from here: https://stackoverflow.com/questions/18638900/javascript-crc32
+        var makeCRCTable = function() {
+            var c;
+            var crcTable = [];
+            for (var n = 0; n < 256; n++) {
+                c = n;
+                for (var k = 0; k < 8; k++) {
+                    c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+                }
+                crcTable[n] = c;
+            }
+            return crcTable;
+        }
+
+        var crc32 = function(str) {
+            var crc = 0 ^ (-1);
+
+            for (var i = 0; i < str.length; i++) {
+                crc = (crc >>> 8) ^ crcTable[(crc ^ str.charCodeAt(i)) & 0xFF];
+            }
+
+            return (crc ^ (-1)) >>> 0;
+        };
+
+        var crcTable = makeCRCTable();
+
+        known_keys.forEach(item => {
+            let hash = Number(BigInt(item.length) << BigInt(32)) + crc32(item);
+            hash_to_key[hash] = item;
+        });
+
+        function get_hash40_of_str(str) {
+            return `0x${(Number(BigInt(str.length) << BigInt(32)) + crc32(str)).toString(16).toUpperCase()}${str == "" ? "" : ` /* Hash40 of ${str} */` }`;
+        }
+
+        var output = [];
+        
+        function updateOutput(elem) {
+            output = [];
+            var lines = elem.value.split('\n');
+            var hashmap_hash = [];
+            var hashmap_unsigned_byte = [];
+
+            lines.forEach(x => {
+                let line = x.trim()
+                var type = line.substring(line.indexOf('<') + 1, line.indexOf(' '));
+                var hash_key = line.substring(line.indexOf("hash=\"") + "hash=\"".length, line.indexOf(">") - 1);
+                if(hash_key.startsWith("0x")){
+                    let num = parseInt(hash_key.substring(2), 16);
+                    if(num in hash_to_key){
+                        hash_key = hash_to_key[num]
+                    }
+                }
+                
+                var value = line.substring(line.indexOf(">") + 1, line.lastIndexOf('<'));
+
+                var rust_type = type_dictionary[type];
+                var rust_value;
+                var method = optional_keys.includes(hash_key) ? "Optional" : "Overwrite";
+                if (known_keys.includes(hash_key.startsWith("0x") ? `unk_${hash_key.toLowerCase()}` : hash_key)) {
+                    if (type == "string") {
+                        rust_value = `"${value}"`;
+                    } else if (type == "hash40") {
+                        rust_value = !value.startsWith("0x") ? get_hash40_of_str(value) : value;
+                    } else if (type == "float") {
+                        rust_value = !value.includes('.') ? parseFloat(value).toFixed(1) : parseFloat(value);
+                    } else {
+                        rust_value = value.toLowerCase(); // changing to lowercase in case its a bool
+                    }
+
+                    if (optional_keys.includes(hash_key)) {
+                        rust_value = `Some(${rust_value})`;
+                    }
+
+                    rust_type = rust_type.replace("<METHOD>", method);
+                    rust_type = rust_type.replace("<VALUE>", rust_value);
+                    output.push(`${hash_key.startsWith("0x") ? `unk_${hash_key.toLowerCase()}` : hash_key}: ${rust_type}`);
+                } else {
+                    if(type != "hash40" && type != "byte"){
+                        return;
+                    }
+                        
+
+                    var map_to_use = type == "hash40" ? hashmap_hash : hashmap_unsigned_byte;
+                    
+                    if (type == "hash40") {
+                        rust_value = !value.startsWith("0x") ? get_hash40_of_str(value) : value;
+                    } else {
+                        rust_value = value;
+                    }
+                        
+                    if (optional_keys.includes(hash_key)) {
+                        rust_value = `Some(${rust_value})`;
+                    }
+
+                    rust_type = rust_type.replace("<METHOD>", method);
+                    rust_type = rust_type.replace("<VALUE>", rust_value);
+                    
+                    map_to_use.push(
+                        [!hash_key.startsWith("0x") ? get_hash40_of_str(hash_key) : hash_key, rust_type]
+                    );
+                }
+            });
+
+            if(hashmap_hash.length > 0) {
+                var res = "";
+                hashmap_hash.forEach(item => {
+                    res += `\t(${item[0]}, ${item[1]}), \n`;
+                });
+                res = res.trim();
+                output.push(`extra_hash_maps: the_csk_collection_api::Hash40Map::Overwrite(HashMap::from([
+                ${res}
+                ]))`);
+            }
+            if(hashmap_unsigned_byte.length > 0) {
+                var res = "";
+                hashmap_unsigned_byte.forEach(item => {
+                    res += `\t(${item[0]}, ${item[1]}), \n`;
+                });
+                res = res.trim();
+                output.push(`extra_index_maps: the_csk_collection_api::UnsignedByteMap::Overwrite(HashMap::from([
+                ${res}
+                ]))`);
+            }
+
+            output.push("..Default::default()");
+            document.getElementById("output").value = output.join(', \n');
+        }
+    </script>
+</body>
+
+</html>
