@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -160,7 +161,7 @@
 
         var type_dictionary = {
             "hash40": `${crate_prefix}::Hash40Type::<METHOD>(<VALUE>)`,
-            "string": `${crate_prefix}::StringType::<METHOD>(<VALUE>)`,
+            "string": `${crate_prefix}::StringType::<METHOD>(${crate_prefix}::CStrCSK::new(<VALUE>))`,
             "short": `${crate_prefix}::ShortType::<METHOD>(<VALUE>)`,
             "int": `${crate_prefix}::IntType::<METHOD>(<VALUE>)`,
             "float": `${crate_prefix}::FloatType::<METHOD>(<VALUE>)`,
@@ -238,7 +239,7 @@
                 var method = optional_keys.includes(hash_key) ? "Optional" : "Overwrite";
                 if (known_keys.includes(hash_key.startsWith("0x") ? `unk_${hash_key.toLowerCase()}` : hash_key)) {
                     if (type == "string") {
-                        rust_value = `String::from("${value}")`;
+                        rust_value = `"${value}"`;
                     } else if (type == "hash40") {
                         rust_value = !value.startsWith("0x") ? get_hash40_of_str(value) : value;
                     } else if (type == "float") {
@@ -284,22 +285,22 @@
             if(hashmap_hash.length > 0) {
                 var res = "";
                 hashmap_hash.forEach(item => {
-                    res += `\t[${item[0]}, ${item[1]}], \n`;
+                    res += `\t(${item[0]}, ${item[1]}), \n`;
                 });
                 res = res.trim();
-                output.push(`extra_hash_maps: the_csk_collection_api::Hash40Map::Overwrite(HashMap::from(
+                output.push(`extra_hash_maps: the_csk_collection_api::Hash40Map::Overwrite(HashMap::from([
                 ${res}
-                ))`);
+                ]))`);
             }
             if(hashmap_unsigned_byte.length > 0) {
                 var res = "";
                 hashmap_unsigned_byte.forEach(item => {
-                    res += `\t[${item[0]}, ${item[1]}], \n`;
+                    res += `\t(${item[0]}, ${item[1]}), \n`;
                 });
                 res = res.trim();
-                output.push(`extra_index_maps: the_csk_collection_api::Hash40Map::Overwrite(HashMap::from(
+                output.push(`extra_index_maps: the_csk_collection_api::UnsignedByteMap::Overwrite(HashMap::from([
                 ${res}
-                ))`);
+                ]))`);
             }
 
             output.push("..Default::default()");
