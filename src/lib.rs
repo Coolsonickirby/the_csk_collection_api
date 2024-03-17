@@ -332,7 +332,7 @@ pub struct SeriesDatabaseEntry {
     pub name_id: StringType,
     pub disp_order: SignedByteType,
     pub disp_order_sound: SignedByteType,
-    pub save_no: SignedByteType,
+    pub save_no: ShortType,
     pub shown_as_series_in_directory: BoolType,
     pub is_dlc: BoolType,
     pub is_patch: BoolType,
