@@ -5,6 +5,7 @@ use std::{collections::HashMap, ffi::CString};
 use std::io::{BufRead, Error, Read, Seek, Write};
 use binrw::BinWriterExt;
 
+#[cfg(target_os="switch")]
 mod externed {
     extern "C" {
         pub fn play_bgm(ui_bgm_hash: u64);
@@ -29,50 +30,60 @@ mod externed {
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn play_bgm(ui_bgm_hash: u64) {
     unsafe {
         externed::play_bgm(ui_bgm_hash);
     }
 }
 
+
+#[cfg(target_os="switch")]
 pub fn get_color_from_entry_id(entry_id: u32) -> u32 {
     unsafe { externed::get_color_from_entry_id(entry_id) }
 }
 
+#[cfg(target_os="switch")]
 pub fn change_entry_chara_ui(entry_id: u32, ui_chara_hash: u64, color_slot: u8) {
     unsafe {
         externed::change_entry_chara_ui(entry_id, ui_chara_hash, color_slot);
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn get_ui_chara_from_entry_id(entry_id: u32) -> u64 {
     unsafe { externed::get_ui_chara_from_entry_id(entry_id) }
 }
 
+#[cfg(target_os="switch")]
 pub fn get_victor_color() {
     unsafe {
         externed::get_victor_color();
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn allow_ui_chara_hash_online(ui_chara_hash: u64) {
     unsafe {
         externed::allow_ui_chara_hash_online(ui_chara_hash);
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn disable_ui_chara_hash_online(ui_chara_hash: u64) {
     unsafe {
         externed::disable_ui_chara_hash_online(ui_chara_hash);
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn add_chara_db_entry_info(chara_db_entry_info: crate::CharacterDatabaseEntry) {
     unsafe {
         externed::add_chara_db_entry_info(&chara_db_entry_info);
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn add_chara_layout_db_entry_info(
     chara_layout_db_entry_info: crate::CharacterLayoutDatabaseEntry,
 ) {
@@ -81,12 +92,14 @@ pub fn add_chara_layout_db_entry_info(
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn add_series_db_entry_info(series_db_entry_info: crate::SeriesDatabaseEntry) {
     unsafe {
         externed::add_series_db_entry_info(&series_db_entry_info);
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn add_narration_characall_entry(entry: &str) -> bool {
     unsafe {
         let ptr = std::ffi::CString::new(entry)
@@ -96,23 +109,28 @@ pub fn add_narration_characall_entry(entry: &str) -> bool {
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn add_new_sli_entry(entry: &smash_sli::SliEntry) {
     unsafe {
         externed::add_new_sli_entry(entry);
     }
 }
 
+#[cfg(target_os="switch")]
 pub fn load_ui_file(ui_path: u64) {
     unsafe { externed::load_ui_file(ui_path); }
 }
 
+#[cfg(target_os="switch")]
 pub fn is_online() -> bool {
     unsafe { externed::is_online() }
 }
 
+#[cfg(target_os="switch")]
 pub fn get_plugin_version() -> Version {
     unsafe { *externed::csk_collection_version() }
 }
+
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
