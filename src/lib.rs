@@ -482,9 +482,9 @@ pub fn append_entries_to_nus3bank(
     }
 
     cursor.seek(std::io::SeekFrom::Start(0)).unwrap();
-    let mut n3b_data = cursor.into_inner();
+    let n3b_data = cursor.into_inner();
 
-    let mut output_file: Vec<u8> = Vec::new();
+    let output_file: Vec<u8> = Vec::new();
     let mut output_cursor = std::io::Cursor::new(output_file);
 
     output_cursor.write("NUS3".as_bytes()).unwrap();
