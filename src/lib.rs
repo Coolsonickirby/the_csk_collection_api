@@ -17,7 +17,7 @@ mod externed {
         pub fn disable_ui_chara_hash_online(ui_chara_hash: u64);
         pub fn is_online() -> bool;
         pub fn csk_collection_version() -> *const crate::Version;
-        pub fn add_narration_characall_entry(string_ptr: *mut u8) -> bool;
+        pub fn add_narration_characall_entry(string_ptr: *mut i8) -> bool;
         pub fn load_ui_file(ui_path: u64);
     }
     extern "Rust" {
@@ -143,7 +143,7 @@ pub struct Version {
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct CStrCSK {
-    pub ptr: *mut u8,
+    pub ptr: *mut i8,
 }
 
 impl CStrCSK {
