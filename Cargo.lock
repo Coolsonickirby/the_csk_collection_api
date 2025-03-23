@@ -142,6 +142,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "smash-bgm-property"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "719d8fcff419f09d3a7e118adadaa8776b248428d714341c0081d516c3eb9697"
+dependencies = [
+ "binrw",
+ "hash40",
+]
+
+[[package]]
 name = "smash-sli"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -178,6 +188,7 @@ name = "the_csk_collection_api"
 version = "0.1.0"
 dependencies = [
  "binrw",
+ "smash-bgm-property",
  "smash-sli",
 ]
 

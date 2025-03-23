@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 binrw = "=0.11.2"
 smash-sli = "0.9.0"
+smash-bgm-property = "1.2.0"

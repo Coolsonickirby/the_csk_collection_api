@@ -18,6 +18,7 @@ mod externed {
         pub fn is_online() -> bool;
         pub fn csk_collection_version() -> *const crate::Version;
         pub fn add_narration_characall_entry(string_ptr: *mut i8) -> bool;
+        pub fn set_fighter_jingle(chara_id: u64, string_ptr: *mut i8);
         pub fn load_ui_file(ui_path: u64);
     }
     extern "Rust" {
@@ -26,7 +27,12 @@ mod externed {
             chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry,
         );
         pub fn add_series_db_entry_info(series_db_entry_info: &crate::SeriesDatabaseEntry);
+        pub fn add_bgm_db_entry_info(bgm_db_entry_info: &crate::BgmDatabaseRootEntry);
+        pub fn add_stream_set_entry_info(stream_set_entry_info: &crate::StreamSetEntry);
+        pub fn add_assigned_info_entry_info(assigned_info_entry_info: &crate::AssignedInfoEntry);
+        pub fn add_stream_property_entry_info(stream_property_entry_info: &crate::StreamPropertyEntry);
         pub fn add_new_sli_entry(entry: &smash_sli::SliEntry);
+        pub fn add_new_bgm_property_entry(entry: &smash_bgm_property::BgmPropertyEntry);
     }
 }
 
@@ -99,6 +105,19 @@ pub fn add_series_db_entry_info(series_db_entry_info: crate::SeriesDatabaseEntry
     }
 }
 
+pub fn add_bgm_db_entry_info(bgm_db_entry_info: &crate::BgmDatabaseRootEntry) {
+    unsafe { externed::add_bgm_db_entry_info(bgm_db_entry_info); }
+}
+pub fn add_stream_set_entry_info(stream_set_entry_info: &crate::StreamSetEntry) {
+    unsafe { externed::add_stream_set_entry_info(stream_set_entry_info); }
+}
+pub fn add_assigned_info_entry_info(assigned_info_entry_info: &crate::AssignedInfoEntry) {
+    unsafe { externed::add_assigned_info_entry_info(assigned_info_entry_info); }
+}
+pub fn add_stream_property_entry_info(stream_property_entry_info: &crate::StreamPropertyEntry) {
+    unsafe { externed::add_stream_property_entry_info(stream_property_entry_info); }
+}
+
 
 pub fn add_narration_characall_entry(entry: &str) -> bool {
     unsafe {
@@ -113,6 +132,21 @@ pub fn add_narration_characall_entry(entry: &str) -> bool {
 pub fn add_new_sli_entry(entry: &smash_sli::SliEntry) {
     unsafe {
         externed::add_new_sli_entry(entry);
+    }
+}
+
+pub fn add_new_bgm_property_entry(entry: &smash_bgm_property::BgmPropertyEntry) {
+    unsafe {
+        externed::add_new_bgm_property_entry(entry);
+    }
+}
+
+pub fn set_fighter_jingle(chara_id: u64, entry: &str){
+    unsafe {
+        let ptr = std::ffi::CString::new(entry)
+        .expect(&format!("Failed converting {} to CString!", entry))
+        .into_raw();
+        externed::set_fighter_jingle(chara_id, ptr as _)
     }
 }
 
@@ -147,6 +181,10 @@ pub struct CStrCSK {
 }
 
 impl CStrCSK {
+    pub fn empty() -> Self {
+        CStrCSK { ptr: std::ptr::null_mut() }
+    }
+
     pub fn new(s: &str) -> Self {
         let entry = CStrCSK {
             ptr: std::ptr::null_mut(),
@@ -179,6 +217,12 @@ impl CStrCSK {
     }
 }
 
+impl Default for CStrCSK {
+    fn default() -> Self {
+        CStrCSK::empty()
+    }
+}
+
 macro_rules! create_enum {
     ($field_name:ident: $field_type:ty) => {
         #[repr(C)]
@@ -199,7 +243,9 @@ macro_rules! create_enum {
 create_enum!(StringType: CStrCSK);
 create_enum!(Hash40Type: u64);
 create_enum!(ShortType: i16);
+create_enum!(UnsignedShortType: u16);
 create_enum!(IntType: i32);
+create_enum!(UnsignedIntType: u32);
 create_enum!(FloatType: f32);
 create_enum!(BoolType: bool);
 create_enum!(SignedByteType: i8);
@@ -371,6 +417,106 @@ pub struct SeriesDatabaseEntry {
     pub is_patch: BoolType,
     pub dlc_chara_id: Hash40Type,
     pub is_use_amiibo_bg: BoolType,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct BgmDatabaseRootEntry {
+    pub ui_bgm_id: u64,
+    pub clone_from_ui_bgm_id: Option<u64>,
+    pub stream_set_id: Hash40Type,
+    pub rarity: Hash40Type,
+    pub record_type: Hash40Type,
+    pub ui_gametitle_id: Hash40Type,
+    pub ui_gametitle_id_1: Hash40Type,
+    pub ui_gametitle_id_2: Hash40Type,
+    pub ui_gametitle_id_3: Hash40Type,
+    pub ui_gametitle_id_4: Hash40Type,
+    pub name_id: StringType,
+    pub save_no: ShortType,
+    pub test_disp_order: ShortType,
+    pub menu_value: IntType,
+    pub jp_region: BoolType,
+    pub other_region: BoolType,
+    pub possessed: BoolType,
+    pub prize_lottery: BoolType,
+    pub shop_price: UnsignedIntType,
+    pub count_target: BoolType,
+    pub menu_loop: UnsignedByteType,
+    pub is_selectable_stage_make: BoolType,
+    pub is_selectable_movie_edit: BoolType,
+    pub is_selectable_original: BoolType,
+    pub is_dlc: BoolType,
+    pub is_patch: BoolType,
+    pub dlc_ui_chara_id: Hash40Type,
+    pub dlc_mii_hat_motif_id: Hash40Type,
+    pub dlc_mii_body_motif_id: Hash40Type,
+    pub unk_0x0e6b57e593: BoolType
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct StreamSetEntry {
+    pub stream_set_id: u64,
+    pub clone_from_stream_set_id: Option<u64>,
+    pub special_category: Hash40Type,
+    pub info0: Hash40Type,
+    pub info1: Hash40Type,
+    pub info2: Hash40Type,
+    pub info3: Hash40Type,
+    pub info4: Hash40Type,
+    pub info5: Hash40Type,
+    pub info6: Hash40Type,
+    pub info7: Hash40Type,
+    pub info8: Hash40Type,
+    pub info9: Hash40Type,
+    pub info10: Hash40Type,
+    pub info11: Hash40Type,
+    pub info12: Hash40Type,
+    pub info13: Hash40Type,
+    pub info14: Hash40Type,
+    pub info15: Hash40Type,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct AssignedInfoEntry {
+    pub info_id: u64,
+    pub clone_from_info_id: Option<u64>,
+    pub stream_id: Hash40Type,
+    pub condition: Hash40Type,
+    pub condition_process: Hash40Type,
+    pub start_frame: IntType,
+    pub change_fadein_frame: IntType,
+    pub change_start_delay_frame: IntType,
+    pub change_fadeout_frame: IntType,
+    pub change_stop_delay_frame: IntType,
+    pub menu_change_fadein_frame: IntType,
+    pub menu_change_start_delay_frame: IntType,
+    pub menu_change_fadeout_frame: IntType,
+    pub menu_change_stop_delay_frame: IntType,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct StreamPropertyEntry {
+    pub stream_id: u64,
+    pub clone_from_stream_id: Option<u64>,
+    pub data_name0: StringType,
+    pub data_name1: StringType,
+    pub data_name2: StringType,
+    pub data_name3: StringType,
+    pub data_name4: StringType,
+    pub loop_track: UnsignedByteType,
+    pub end_point: StringType,
+    pub fadeout_frame: UnsignedShortType,
+    pub start_point_suddendeath: StringType,
+    pub start_point_transition: StringType,
+    pub start_point0: StringType,
+    pub start_point1: StringType,
+    pub start_point2: StringType,
+    pub start_point3: StringType,
+    pub start_point4: StringType,
 }
 
 pub fn append_entries_to_nus3bank(
