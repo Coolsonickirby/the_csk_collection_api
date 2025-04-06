@@ -23,9 +23,7 @@ mod externed {
     }
     extern "Rust" {
         pub fn add_chara_db_entry_info(chara_db_entry_info: &crate::CharacterDatabaseEntry);
-        pub fn add_chara_layout_db_entry_info(
-            chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry,
-        );
+        pub fn add_chara_layout_db_entry_info(chara_db_entry_info: &crate::CharacterLayoutDatabaseEntry);
         pub fn add_series_db_entry_info(series_db_entry_info: &crate::SeriesDatabaseEntry);
         pub fn add_bgm_db_entry_info(bgm_db_entry_info: &crate::BgmDatabaseRootEntry);
         pub fn add_stream_set_entry_info(stream_set_entry_info: &crate::StreamSetEntry);
@@ -33,6 +31,14 @@ mod externed {
         pub fn add_stream_property_entry_info(stream_property_entry_info: &crate::StreamPropertyEntry);
         pub fn add_new_sli_entry(entry: &smash_sli::SliEntry);
         pub fn add_new_bgm_property_entry(entry: &smash_bgm_property::BgmPropertyEntry);
+        pub fn add_tracks_to_playlist(playlist: u64, tracks: &Vec<crate::BgmPlaylistEntry>);
+        pub fn add_stage_db_entry(stage_entry: &crate::StageDatabaseEntry);
+        pub fn add_ui_stage_db_resources_entry(stage_place_id: u64, ui_stage_id: u64, stage_data: &crate::UiStageData);
+        pub fn add_gametitle_db_entry_info(gametitle_db_entry_info: &crate::GametitleDatabaseEntry);
+        pub fn add_tips_db_entry_info(tips_db_entry_info: &crate::TipsDatabaseEntry);
+        pub fn add_amiibo_db_entry_info(amiibo_db_entry_info: &crate::AmiiboDatabaseEntry);
+        pub fn add_mii_body_db_entry_info(mii_body_db_entry_info: &crate::MiiBodyDatabaseEntry);
+        pub fn add_mii_hat_db_entry_info(mii_hat_db_entry_info: &crate::MiiHatDatabaseEntry);
     }
 }
 
@@ -118,6 +124,30 @@ pub fn add_stream_property_entry_info(stream_property_entry_info: &crate::Stream
     unsafe { externed::add_stream_property_entry_info(stream_property_entry_info); }
 }
 
+pub fn add_gametitle_db_entry_info(gametitle_db_entry_info: &crate::GametitleDatabaseEntry) {
+    unsafe { externed::add_gametitle_db_entry_info(gametitle_db_entry_info); }
+}
+pub fn add_tips_db_entry_info(tips_db_entry_info: &crate::TipsDatabaseEntry) {
+    unsafe { externed::add_tips_db_entry_info(tips_db_entry_info); }
+}
+pub fn add_amiibo_db_entry_info(amiibo_db_entry_info: &crate::AmiiboDatabaseEntry) {
+    unsafe { externed::add_amiibo_db_entry_info(amiibo_db_entry_info); }
+}
+pub fn add_mii_body_db_entry_info(mii_body_db_entry_info: &crate::MiiBodyDatabaseEntry) {
+    unsafe { externed::add_mii_body_db_entry_info(mii_body_db_entry_info); }
+}
+pub fn add_mii_hat_db_entry_info(mii_hat_db_entry_info: &crate::MiiHatDatabaseEntry) {
+    unsafe { externed::add_mii_hat_db_entry_info(mii_hat_db_entry_info); }
+}   
+
+pub fn add_stage_db_entry(stage_entry: &crate::StageDatabaseEntry) {
+    unsafe { externed::add_stage_db_entry(stage_entry); }
+}
+
+pub fn add_ui_stage_db_resources_entry(stage_place_id: u64, ui_stage_id: u64, stage_data: &crate::UiStageData){
+    unsafe { externed::add_ui_stage_db_resources_entry(stage_place_id, ui_stage_id, stage_data); }
+}
+
 
 pub fn add_narration_characall_entry(entry: &str) -> bool {
     unsafe {
@@ -146,10 +176,15 @@ pub fn set_fighter_jingle(chara_id: u64, entry: &str){
         let ptr = std::ffi::CString::new(entry)
         .expect(&format!("Failed converting {} to CString!", entry))
         .into_raw();
-        externed::set_fighter_jingle(chara_id, ptr as _)
-    }
+    externed::set_fighter_jingle(chara_id, ptr as _)
+}
 }
 
+pub fn add_tracks_to_playlist(playlist: u64, tracks: &Vec<crate::BgmPlaylistEntry>) {
+    unsafe {
+        externed::add_tracks_to_playlist(playlist, tracks);
+    }
+}
 
 pub fn load_ui_file(ui_path: u64) {
     unsafe { externed::load_ui_file(ui_path); }
@@ -286,7 +321,7 @@ pub struct CharacterDatabaseEntry {
     pub is_plural_narration: BoolType,
     pub is_article: BoolType,
     pub extra_flags: IntType,
-    pub unk_0x112b7bb52a: BoolType,
+    pub has_multiple_face: BoolType,
     pub result_pf0: BoolType,
     pub result_pf1: BoolType,
     pub result_pf2: BoolType,
@@ -517,6 +552,220 @@ pub struct StreamPropertyEntry {
     pub start_point2: StringType,
     pub start_point3: StringType,
     pub start_point4: StringType,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct BgmPlaylistEntry {
+    pub ui_bgm_id: u64,
+    pub order0: ShortType,
+    pub incidence0: UnsignedShortType,
+    pub order1: ShortType,
+    pub incidence1: UnsignedShortType,
+    pub order2: ShortType,
+    pub incidence2: UnsignedShortType,
+    pub order3: ShortType,
+    pub incidence3: UnsignedShortType,
+    pub order4: ShortType,
+    pub incidence4: UnsignedShortType,
+    pub order5: ShortType,
+    pub incidence5: UnsignedShortType,
+    pub order6: ShortType,
+    pub incidence6: UnsignedShortType,
+    pub order7: ShortType,
+    pub incidence7: UnsignedShortType,
+    pub order8: ShortType,
+    pub incidence8: UnsignedShortType,
+    pub order9: ShortType,
+    pub incidence9: UnsignedShortType,
+    pub order10: ShortType,
+    pub incidence10: UnsignedShortType,
+    pub order11: ShortType,
+    pub incidence11: UnsignedShortType,
+    pub order12: ShortType,
+    pub incidence12: UnsignedShortType,
+    pub order13: ShortType,
+    pub incidence13: UnsignedShortType,
+    pub order14: ShortType,
+    pub incidence14: UnsignedShortType,
+    pub order15: ShortType,
+    pub incidence15: UnsignedShortType,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct StageDatabaseEntry {
+    pub ui_stage_id: u64,
+    pub clone_from_ui_stage_id: Option<u64>,
+    pub name_id: StringType,
+    pub save_no: ShortType,
+    pub ui_series_id: Hash40Type,
+    pub can_select: BoolType,
+    pub disp_order: SignedByteType,
+    pub stage_place_id: Hash40Type,
+    pub secret_stage_place_id: Hash40Type,
+    pub can_demo: BoolType,
+    pub is_8player_stage: BoolType,
+    pub is_usable_flag: BoolType,
+    pub is_usable_amiibo: BoolType,
+    pub secret_command_id: Hash40Type,
+    pub secret_command_id_joycon: Hash40Type,
+    pub bgm_set_id: Hash40Type,
+    pub bgm_setting_no: UnsignedByteType,
+    pub bgm_selector: BoolType,
+    pub is_dlc: BoolType,
+    pub is_patch: BoolType,
+    pub dlc_chara_id: Hash40Type,
+    pub extra_hash_maps: Hash40Map,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct GametitleDatabaseEntry {
+    pub ui_gametitle_id: u64,
+    pub clone_from_ui_gametitle_id: Option<u64>,
+    pub name_id: StringType,
+    pub ui_series_id: Hash40Type,
+    pub shown_as_series_in_directory: BoolType,
+    pub release: IntType
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct TipsDatabaseEntry {
+    pub ui_tips_id: u64,
+    pub clone_from_ui_tips_id: Option<u64>,
+    pub save_no: UnsignedIntType,
+    pub level: Hash40Type,
+    pub topic: Hash40Type,
+    pub skill_kind: Hash40Type,
+    pub ui_tips_unlock_id: Hash40Type,
+    pub disp_order: UnsignedIntType,
+    pub type_0: Hash40Type,
+    pub key_0: Hash40Type,
+    pub type_1: Hash40Type,
+    pub key_1: Hash40Type,
+    pub type_2: Hash40Type,
+    pub key_2: Hash40Type,
+    pub type_3: Hash40Type,
+    pub key_3: Hash40Type,
+    pub type_4: Hash40Type,
+    pub key_4: Hash40Type,
+    pub type_5: Hash40Type,
+    pub key_5: Hash40Type,
+    pub type_6: Hash40Type,
+    pub key_6: Hash40Type,
+    pub type_7: Hash40Type,
+    pub key_7: Hash40Type,
+    pub type_8: Hash40Type,
+    pub key_8: Hash40Type,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct AmiiboDatabaseEntry {
+    pub ui_amiibo_id: u64,
+    pub clone_from_ui_amiibo_id: Option<u64>,
+    pub ui_chara_id: Hash40Type,
+    pub is_valid: BoolType,
+    pub unk_0x13a26bd6a0: BoolType,
+    pub nfp_character_id_upper: UnsignedShortType,
+    pub nfp_character_id_lower: UnsignedByteType,
+    pub enable_unknown_numbering_id: BoolType,
+    pub nfp_numbering_id: UnsignedShortType,
+    pub default_color: UnsignedByteType
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct MiiBodyDatabaseEntry {
+    pub ui_mii_body_id: u64,
+    pub clone_from_ui_mii_body_id: Option<u64>,
+    pub name_id: StringType,
+    pub mii_body_id: StringType,
+    pub valid_resource: SignedByteType,
+    pub motif_gender: Hash40Type,
+    pub motif_id: Hash40Type,
+    pub text_id: StringType,
+    pub replace_id: StringType,
+    pub normal_suit: UnsignedByteType,
+    pub dlc_type: Hash40Type,
+    pub is_patch: BoolType,
+    pub save_no: ShortType,
+    pub mii_body_type: Hash40Type,
+    pub gender: Hash40Type,
+    pub unk_0x18ef467708: BoolType,
+    pub prize_lottery: BoolType,
+    pub rarity: Hash40Type,
+    pub disp_order: IntType,
+    pub shop_price: UnsignedIntType,
+    pub color_num: IntType,
+    pub swing_enabled: BoolType,
+    pub shop_item_tag: Hash40Type,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct MiiHatDatabaseEntry {
+    pub ui_mii_hat_id: u64,
+    pub clone_from_ui_mii_hat_id: Option<u64>,
+    pub name_id: StringType,
+    pub mii_hat_id: StringType,
+    pub valid_resource: SignedByteType,
+    pub dlc_type: Hash40Type,
+    pub is_patch: BoolType,
+    pub save_no: ShortType,
+    pub gender: Hash40Type,
+    pub motif_gender: Hash40Type,
+    pub motif_id: Hash40Type,
+    pub text_id: StringType,
+    pub unk_0x18ef467708: BoolType,
+    pub prize_lottery: BoolType,
+    pub rarity: Hash40Type,
+    pub disp_order: IntType,
+    pub shop_price: UnsignedIntType,
+    pub mii_model_type: Hash40Type,
+    pub mii_parts_transform: Hash40Type,
+    pub unk_0x10b20e051d: BoolType,
+    pub shop_item_tag: Hash40Type,
+    pub f_cam_pos_x: FloatType,
+    pub f_cam_pos_y: FloatType,
+    pub f_cam_pos_z: FloatType,
+    pub f_cam_rot_x: FloatType,
+    pub f_cam_rot_y: FloatType,
+    pub f_cam_rot_z: FloatType,
+    pub s_cam_pos_x: FloatType,
+    pub s_cam_pos_y: FloatType,
+    pub s_cam_pos_z: FloatType,
+    pub s_cam_rot_x: FloatType,
+    pub s_cam_rot_y: FloatType,
+    pub s_cam_rot_z: FloatType,
+    pub g_cam_pos_x: FloatType,
+    pub g_cam_pos_y: FloatType,
+    pub g_cam_pos_z: FloatType,
+    pub g_cam_rot_x: FloatType,
+    pub g_cam_rot_y: FloatType,
+    pub g_cam_rot_z: FloatType,
+    pub swing_enabled: BoolType,
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct UiStageData {
+    pub normal: UiStageResources,
+    pub end: UiStageResources,
+    pub battle: UiStageResources
+}
+
+#[derive(Default, Debug, Clone)]
+#[repr(C)]
+pub struct UiStageResources {
+    pub stage_load_group_hash: u64,
+    pub effect_load_group_hash: u64,
+    pub nus3bank_path_hash: u64,
+    pub sqb_path_hash: u64,
+    pub nus3audio_path_hash: u64,
+    pub tonelabel_path_hash: u64,    
 }
 
 pub fn append_entries_to_nus3bank(
