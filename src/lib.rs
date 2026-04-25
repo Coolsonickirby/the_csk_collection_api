@@ -775,9 +775,7 @@ pub fn append_entries_to_nus3bank(
 ) -> std::result::Result<Vec<u8>, String> {
     let mut nus3bank_entries: Vec<Nus3bankEntry> = Vec::new();
     for x in new_entries.iter() {
-        let mut nus3bank_entry = Nus3bankEntry::default();
-        nus3bank_entry.name = x.clone();
-        nus3bank_entries.push(nus3bank_entry);
+        nus3bank_entries.push(Nus3bankEntry::new(&x.clone()));
     }
     return append_entries_to_nus3bank_ext(data, source_name, &nus3bank_entries);
 }
@@ -1007,14 +1005,17 @@ pub fn append_entries_to_nus3bank_ext(
             .to_vec();
 
         if let Some(pos) = meta.windows(4).position(|w| w == [0xFF, 0xFF, 0xFF, 0xFF]) {
-            meta[pos + 4..pos + 8]
-                .copy_from_slice(&x.sample_rate.to_le_bytes());
+            if let Some(sample_rate) = x.sample_rate {
+                meta[pos + 4..pos + 8].copy_from_slice(&sample_rate.to_le_bytes());
+            }
 
-            meta[pos + 8..pos + 12]
-                .copy_from_slice(&x.channel_count.to_le_bytes());
+            if let Some(channel_count) = x.channel_count {
+                meta[pos + 8..pos + 12].copy_from_slice(&channel_count.to_le_bytes());
+            }
 
-            meta[pos + 12..pos + 16]
-                .copy_from_slice(&x.sample_count.to_le_bytes());
+            if let Some(sample_count) = x.sample_count {
+                meta[pos + 12..pos + 16].copy_from_slice(&sample_count.to_le_bytes());
+            }
         } else {
             return Err("Failed to write metadata".into());
         }
@@ -1075,20 +1076,20 @@ pub fn get_sub_meta_offset_and_size(cursor: &mut std::io::Cursor<&mut [u8]>) -> 
 #[repr(C)]
 pub struct Nus3bankEntry {
     pub name: String,
-    pub sample_rate: u32,
-    pub channel_count: u32,
-    pub sample_count: u32,
-    pub volume: f32,
+    pub sample_rate: Option<u32>,
+    pub channel_count: Option<u32>,
+    pub sample_count: Option<u32>,
+    pub volume: Option<f32>,
 }
 
-impl Default for Nus3bankEntry {
-    fn default() -> Self {
-        Nus3bankEntry { 
-            name: String::from("vc_narration_characall_mario"),
-            sample_rate: 48000,
-            channel_count: 2,
-            sample_count: 67867,
-            volume: 3.0,
+impl Nus3bankEntry {
+   pub fn new(name: &str) -> Nus3bankEntry {
+         Nus3bankEntry { 
+            name: String::from(name),
+            sample_rate: None,
+            channel_count: None,
+            sample_count: None,
+            volume: None,
         }
-    }
+   }
 }
