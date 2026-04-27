@@ -773,6 +773,19 @@ pub fn append_entries_to_nus3bank(
     source_name: &str,
     new_entries: &Vec<String>,
 ) -> std::result::Result<Vec<u8>, String> {
+    let mut nus3bank_entries: Vec<Nus3bankEntry> = Vec::new();
+    for x in new_entries.iter() {
+        nus3bank_entries.push(Nus3bankEntry::new(&x.clone()));
+    }
+    return append_entries_to_nus3bank_ext(data, source_name, &nus3bank_entries);
+}
+
+
+pub fn append_entries_to_nus3bank_ext(
+    data: &mut [u8],
+    source_name: &str,
+    new_entries: &Vec<Nus3bankEntry>,
+) -> std::result::Result<Vec<u8>, String> {
     let source_name = source_name.as_bytes();
     let source_name_offset = data
         .windows(source_name.len())
@@ -889,8 +902,8 @@ pub fn append_entries_to_nus3bank(
     let mut new_total_tone_size: usize = 0;
 
     for x in new_entries.iter() {
-        let mut tone_size = (source_meta_size + 28 + x.len() as u64 + 1) as usize;
-        tone_size += 4 - ((x.len() + 1) % 4);
+        let mut tone_size = (source_meta_size + 28 + x.name.len() as u64 + 1) as usize;
+        tone_size += 4 - ((x.name.len() + 1) % 4);
         new_total_tone_size += tone_size;
     }
 
@@ -951,8 +964,8 @@ pub fn append_entries_to_nus3bank(
     let mut last_tone_offset_counter =
         last_tone_offset + last_tone_size + (8 * new_entries.len() as u32);
     for x in 0..new_entries.len() {
-        let mut tone_size = (source_meta_size + 28 + new_entries[x].len() as u64 + 1) as usize;
-        tone_size += 4 - ((new_entries[x].len() + 1) % 4);
+        let mut tone_size = (source_meta_size + 28 + new_entries[x].name.len() as u64 + 1) as usize;
+        tone_size += 4 - ((new_entries[x].name.len() + 1) % 4);
         output_cursor
             .write_le(&u32::to_le_bytes(last_tone_offset_counter as u32))
             .unwrap();
@@ -969,7 +982,7 @@ pub fn append_entries_to_nus3bank(
         .unwrap();
 
     for x in new_entries.iter() {
-        let name = x;
+        let name = &x.name;
         output_cursor.write(source_pre_meta_data).unwrap();
         output_cursor
             .write(&u8::to_le_bytes(name.len() as u8 + 1))
@@ -987,12 +1000,27 @@ pub fn append_entries_to_nus3bank(
         output_cursor.write_le(&u32::to_le_bytes(8)).unwrap();
         output_cursor.write_le(&u32::to_le_bytes(0)).unwrap();
         output_cursor.write_le(&u32::to_le_bytes(0x22E8)).unwrap();
-        output_cursor
-            .write(
-                &n3b_data
-                    [source_meta_offset as usize..(source_meta_offset + source_meta_size) as usize],
-            )
-            .unwrap();
+        let mut meta = n3b_data
+            [source_meta_offset as usize..(source_meta_offset + source_meta_size) as usize]
+            .to_vec();
+
+        if let Some(pos) = meta.windows(4).position(|w| w == [0xFF, 0xFF, 0xFF, 0xFF]) {
+            if let Some(sample_rate) = x.sample_rate {
+                meta[pos + 4..pos + 8].copy_from_slice(&sample_rate.to_le_bytes());
+            }
+
+            if let Some(channel_count) = x.channel_count {
+                meta[pos + 8..pos + 12].copy_from_slice(&channel_count.to_le_bytes());
+            }
+
+            if let Some(sample_count) = x.sample_count {
+                meta[pos + 12..pos + 16].copy_from_slice(&sample_count.to_le_bytes());
+            }
+        } else {
+            return Err("Failed to write metadata".into());
+        }
+
+        output_cursor.write(&meta);
     }
 
     output_cursor
@@ -1041,4 +1069,27 @@ pub fn get_sub_meta_offset_and_size(cursor: &mut std::io::Cursor<&mut [u8]>) -> 
     }
 
     return (start_pos, cursor.position() - start_pos);
+}
+
+
+#[derive(Debug, Clone)]
+#[repr(C)]
+pub struct Nus3bankEntry {
+    pub name: String,
+    pub sample_rate: Option<u32>,
+    pub channel_count: Option<u32>,
+    pub sample_count: Option<u32>,
+    pub volume: Option<f32>,
+}
+
+impl Nus3bankEntry {
+   pub fn new(name: &str) -> Nus3bankEntry {
+         Nus3bankEntry { 
+            name: String::from(name),
+            sample_rate: None,
+            channel_count: None,
+            sample_count: None,
+            volume: None,
+        }
+   }
 }
